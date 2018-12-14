@@ -14,6 +14,7 @@ public class ZooKeeperDataUtility {
     private BufferedReader hBR;
     private int animalArraySize = 0;
     private int habitatArraySize = 0;
+
     public ZooKeeperDataUtility(String animalFilePath, String habitatFilePath) throws IOException{
         this.aFP = animalFilePath;
         this.hFP = habitatFilePath;
@@ -32,7 +33,7 @@ public class ZooKeeperDataUtility {
                 count= 1;
                 while ((line = aBR.readLine()) != null) {
                     if(line.contains("Details on")){
-                        System.out.println("For "+line+" select: "+count++);
+                        System.out.println("For "+line+" select: " + count++);
                         animalArraySize++;
                     }
                     else
@@ -44,7 +45,7 @@ public class ZooKeeperDataUtility {
                 count = 1;
                 while ((line = hBR.readLine()) != null) {
                     if(line.contains("Details on")){
-                        System.out.println("For "+line+" select: "+count++);
+                        System.out.println("For "+line+" select: " + count++);
                         habitatArraySize++;
                     }
                     else
@@ -71,22 +72,32 @@ public class ZooKeeperDataUtility {
                             if(!line.contains("***")){
                                 System.out.println(line);
                             }else{
-                                JOptionPane.showMessageDialog(null, "Oh Shit! "+line);
+                                DisplayMessage(line);
                                 break;
                             }
-
+                        }else{
+                            break;
                         }
+
                     }
                 }
             }
         }else{
             return false;
         }
+        aBR.close();
         return true;
+    }
+
+    private void DisplayMessage(String line) {
+        //replace all of the **** with
+        line = line.replaceAll("[*]", "");
+        JOptionPane.showMessageDialog(null, "Oh Shit! "+line);
     }
 
     private String getAnimal(int animalOption) throws IOException {
         //get animal type from string
+        //going through the file a second time.
         aBR = new BufferedReader(new FileReader(this.aFP));
         int count= 1;
         String line;
@@ -101,4 +112,51 @@ public class ZooKeeperDataUtility {
         return null;
     }
 
+    public boolean PrintHabitatData(int habitatOption) throws IOException {
+        if(!(habitatOption <= habitatArraySize)){
+            return false;
+        }
+        String habitat = getHabitat(habitatOption);
+        String line;
+        if(habitat != null){
+            while ((line = hBR.readLine()) != null) {
+                if(line.contains("Habitat - "+habitat) ){
+                    System.out.println(line);
+                    while ((line = hBR.readLine()) != null) {
+                        if(!line.equals("")){
+                            if(!line.contains("***")){
+                                System.out.println(line);
+                            }else{
+                                DisplayMessage(line);
+                                break;
+                            }
+
+                        }else{break;}
+                    }
+                }
+            }
+        }else{
+            return false;
+        }
+        hBR.close();
+        return true;
+    }
+
+    private String getHabitat(int habitatOption) throws IOException {
+        //get animal type from string
+        hBR = new BufferedReader(new FileReader(this.hFP));
+        int count= 1;
+        String line;
+        while ((line = hBR.readLine()) != null) {
+            if(line.contains("Details on ") && count == habitatOption ){
+                String animal = line.substring(11);
+                String[] a = animal.split(" ");
+                animal = a[0];
+                animal = animal.substring(0, 1).toUpperCase() + animal.substring(1);
+                return animal;
+            }
+            count++;
+        }
+        return null;
+    }
 }
